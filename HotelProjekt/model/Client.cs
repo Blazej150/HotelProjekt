@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace HotelProjekt.model
@@ -13,6 +15,7 @@ namespace HotelProjekt.model
         public string Email { get; private set; }
         public string Pesel { get; private set; }
         public string Telefon { get; private set; }
+        public string NumerKontaBankowego { get; private set; }
         public string NumerRejestracyjny { get; private set; }
         public DateTime DataUrodzenia 
         {
@@ -40,7 +43,7 @@ namespace HotelProjekt.model
             }
         }
 
-        private void Initialize(string imie, string nazwisko, string email, string pesel, string telefon) 
+        private void Initialize(string imie, string nazwisko, string email, string pesel, string telefon, string numerKontaBankowego) 
         {
             this.Empty = false;
             if (imie.Equals(string.Empty)) 
@@ -68,15 +71,20 @@ namespace HotelProjekt.model
                 throw new HotelSystemElementException("Podano niewłaściwy numer telefonu");
             }
             this.Telefon = telefon;
+            if (!ValidateNrKonta(numerKontaBankowego)) 
+            {
+                throw new HotelSystemElementException("Podano niewłaściwy numer konta bankowego");
+            }
+            this.NumerKontaBankowego = numerKontaBankowego;
         }
-        public Client(string imie, string nazwisko, string email, string pesel, string telefon) 
+        public Client(string imie, string nazwisko, string email, string pesel, string telefon, string numerKontaBankowego) 
         {
-            Initialize(imie, nazwisko, email, pesel, telefon);
+            Initialize(imie, nazwisko, email, pesel, telefon, numerKontaBankowego);
             this.NumerRejestracyjny = string.Empty;
         }
-        public Client(string imie, string nazwisko, string email, string pesel, string telefon, string numerRejestracyjny)
+        public Client(string imie, string nazwisko, string email, string pesel, string telefon, string numerKontaBankowego, string numerRejestracyjny)
         {
-            Initialize(imie, nazwisko, email, pesel, telefon);
+            Initialize(imie, nazwisko, email, pesel, telefon, numerKontaBankowego);
             if (!ValidateNumerRejestracyjny(numerRejestracyjny)) 
             {
                 throw new HotelSystemElementException("Podano niewłaściwy numer rejestracyjny pojazdu");
@@ -85,23 +93,119 @@ namespace HotelProjekt.model
         }
         private static bool ValidateEmail(string email) 
         {
-            return true;
+            try
+            {
+                MailAddress m = new MailAddress(email);
+
+                return true;
+            }
+            catch (FormatException) 
+            {
+                return false;
+            }
+        }
+        private static bool ValidateNrKonta(string nrKonta)
+        {
+            nrKonta = nrKonta.Replace(" ", String.Empty);
+            if (nrKonta.Length != 26 && nrKonta.Length != 32)
+            {
+                return false;
+            }
+
+            const int countryCode = 2521;
+            string checkSum = nrKonta.Substring(0, 2);
+            string accountNumber = nrKonta.Substring(2);
+            string reversedDigits = accountNumber + countryCode + checkSum;
+            return ModString(reversedDigits, 97) == 1;
+        }
+
+        private static int ModString(string x, int y)
+        {
+            if (string.IsNullOrEmpty(x))
+            {
+                return 0;
+            }
+            string firstDigit = x.Substring(0, x.Length - 1);
+            int lastDigit = int.Parse(x.Substring(x.Length - 1));
+            return (ModString(firstDigit, y) * 10 + lastDigit) % y;
         }
         private static bool ValidatePesel(string pesel) 
         {
-            return true;
+            if (!(pesel.All(char.IsDigit) && pesel.Length == 11)) return false;
+            int sum = 0;
+            int weight = 1;
+            for (int i = 0; i < pesel.Length - 1; i++) 
+            {
+                sum += int.Parse(pesel[i].ToString()) * weight;
+                switch (weight) 
+                {
+                    case 1:
+                        weight = 3;
+                        break;
+                    case 3:
+                        weight = 7;
+                        break;
+                    case 7:
+                        weight = 9;
+                        break;
+                    case 9:
+                        weight = 1;
+                        break;
+                }
+            }
+            if (int.Parse(pesel[10].ToString()) == 10 - (sum % 10)) return true;
+            return false;
         }
         private static bool ValidateTelefon(string telefon) 
         {
-            return true;
+            if (telefon.All(char.IsDigit)) return true;
+            return false;
         }
         private static bool ValidateNumerRejestracyjny(string numerRejestracyjny) 
         {
-            return true;
+            Match match = Regex.Match(numerRejestracyjny, @"^[A-Z]{2,3} [A-Z0-9]{4,5}$");
+
+            if (match.Success) 
+            {
+                return true;
+            }
+            return false;
         }
         private static (DateTime DataUrodzenia, bool Płeć) GetBirthDateAndGenderFromPesel(string pesel) 
         {
-            return (DateTime.Now, false);
+            int day, month, year;
+            month = int.Parse(pesel.Substring(2, 2));
+
+            int age = month / 20;
+            string yearPrefix = string.Empty;
+
+            switch (age) 
+            {
+                case 0:
+                    yearPrefix = "19";
+                    break;
+                case 1:
+                    yearPrefix = "20";
+                    break;
+                case 2:
+                    yearPrefix = "21";
+                    break;
+                case 3:
+                    yearPrefix = "22";
+                    break;
+                case 4:
+                    yearPrefix = "18";
+                    break;
+            }
+
+            year = int.Parse(yearPrefix + pesel.Substring(0, 2));
+            month %= 20;
+            day = int.Parse(pesel.Substring(4, 2));
+
+            DateTime birthDate = DateTime.Parse(year + "/" + month + "/" + day);
+            bool gender = int.Parse(pesel[9].ToString()) % 2 != 0 ? true : false;
+
+            return (birthDate, gender);
         }
         public override string ToString()
         {
