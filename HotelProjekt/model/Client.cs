@@ -10,13 +10,108 @@ namespace HotelProjekt.model
 {
     public class Client : HotelSystemElement
     {
-        public string Imię { get; private set; }
-        public string Nazwisko { get; private set; }
-        public string Email { get; private set; }
-        public string Pesel { get; private set; }
-        public string Telefon { get; private set; }
-        public string NumerKontaBankowego { get; private set; }
-        public string NumerRejestracyjny { get; private set; }
+        private string imię;
+        public string Imię {
+            get 
+            {
+                return imię;
+            }
+            set 
+            {
+                if (value.Equals(string.Empty)) throw new HotelSystemElementException("Pole imię nie może być puste");
+                if (this.InRepository) throw new HotelSystemElementException("Nie można zmieniać pól instancji ponieważ została ona dodana do repozytorium");
+                imię = value;
+            } 
+        }
+        private string nazwisko;
+        public string Nazwisko 
+        {
+            get 
+            {
+                return nazwisko;
+            }
+            set 
+            {
+                if (value.Equals(string.Empty)) throw new HotelSystemElementException("Pole nazwisko nie może być puste");
+                if (this.InRepository) throw new HotelSystemElementException("Nie można zmieniać pól instancji ponieważ została ona dodana do repozytorium");
+                nazwisko = value;
+            }
+        }
+        private string email;
+        public string Email 
+        {
+            get 
+            {
+                return email;
+            }
+            set 
+            {
+                if(!ValidateEmail(value)) throw new HotelSystemElementException("Podano nieprawidłowy adres e-mail");
+                if (this.InRepository) throw new HotelSystemElementException("Nie można zmieniać pól instancji ponieważ została ona dodana do repozytorium");
+                email = value;
+            }
+        }
+        private string pesel;
+        public string Pesel 
+        {
+            get 
+            {
+                return pesel;
+            }
+            set 
+            {
+                if (!ValidatePesel(value)) throw new HotelSystemElementException("Podano nieprawidłowy numer pesel");
+                if (this.InRepository) throw new HotelSystemElementException("Nie można zmieniać pól instancji ponieważ została ona dodana do repozytorium");
+                pesel = value;
+            }
+        }
+        private string telefon;
+        public string Telefon
+        {
+            get 
+            {
+                return telefon;
+            }
+            set 
+            {
+                if (!ValidateTelefon(value)) throw new HotelSystemElementException("Podano niewłaściwy numer telefonu");
+                if (this.InRepository) throw new HotelSystemElementException("Nie można zmieniać pól instancji ponieważ została ona dodana do repozytorium");
+                telefon = value;
+            }
+        }
+        private string numerKontaBankowego;
+        public string NumerKontaBankowego 
+        {
+            get 
+            {
+                return numerKontaBankowego;
+            }
+            set 
+            {
+                if (!ValidateNrKonta(value)) throw new HotelSystemElementException("Podano niewłaściwy numer konta bankowego");
+                if (this.InRepository) throw new HotelSystemElementException("Nie można zmieniać pól instancji ponieważ została ona dodana do repozytorium");
+                numerKontaBankowego = value;
+            }
+        }
+        private string numerRejestracyjny;
+        public string NumerRejestracyjny 
+        {
+            get 
+            {
+                return numerRejestracyjny;
+            }
+            set 
+            {
+                if (value.Equals(string.Empty)) 
+                {
+                    numerRejestracyjny = string.Empty;
+                    return;
+                }
+                if (!ValidateNumerRejestracyjny(value)) throw new HotelSystemElementException("Podano niewłaściwy numer rejestracyjny pojazdu");
+                if (this.InRepository) throw new HotelSystemElementException("Nie można zmieniać pól instancji ponieważ została ona dodana do repozytorium");
+                numerRejestracyjny = value;
+            }
+        }
         public DateTime DataUrodzenia 
         {
             get 
@@ -46,35 +141,11 @@ namespace HotelProjekt.model
         private void Initialize(string imie, string nazwisko, string email, string pesel, string telefon, string numerKontaBankowego) 
         {
             this.Empty = false;
-            if (imie.Equals(string.Empty)) 
-            {
-                throw new HotelSystemElementException("Pole imię nie może być puste");
-            }
             this.Imię = imie;
-            if (nazwisko.Equals(string.Empty)) 
-            {
-                throw new HotelSystemElementException("Pole nazwisko nie może być puste");
-            }
             this.Nazwisko = nazwisko;
-            if (!ValidateEmail(email)) 
-            {
-                throw new HotelSystemElementException("Podano nieprawidłowy adres e-mail");
-            }
             this.Email = email;
-            if (!ValidatePesel(pesel)) 
-            {
-                throw new HotelSystemElementException("Podano nieprawidłowy numer pesel");
-            }
             this.Pesel = pesel;
-            if (!ValidateTelefon(telefon)) 
-            {
-                throw new HotelSystemElementException("Podano niewłaściwy numer telefonu");
-            }
             this.Telefon = telefon;
-            if (!ValidateNrKonta(numerKontaBankowego)) 
-            {
-                throw new HotelSystemElementException("Podano niewłaściwy numer konta bankowego");
-            }
             this.NumerKontaBankowego = numerKontaBankowego;
         }
         public Client(string imie, string nazwisko, string email, string pesel, string telefon, string numerKontaBankowego) 
@@ -85,13 +156,9 @@ namespace HotelProjekt.model
         public Client(string imie, string nazwisko, string email, string pesel, string telefon, string numerKontaBankowego, string numerRejestracyjny)
         {
             Initialize(imie, nazwisko, email, pesel, telefon, numerKontaBankowego);
-            if (!ValidateNumerRejestracyjny(numerRejestracyjny)) 
-            {
-                throw new HotelSystemElementException("Podano niewłaściwy numer rejestracyjny pojazdu");
-            }
             this.NumerRejestracyjny = numerRejestracyjny;
         }
-        private static bool ValidateEmail(string email) 
+        private static bool ValidateEmail(string email)
         {
             try
             {
@@ -210,7 +277,7 @@ namespace HotelProjekt.model
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("Klient hotelu: " + id.ToString());
+            sb.AppendLine("Klient hotelu: " + Id.ToString());
             sb.AppendLine("Imię: " + this.Imię);
             sb.AppendLine("Nazwisko: " + this.Nazwisko);
             sb.AppendLine("Pesel: " + this.Pesel);

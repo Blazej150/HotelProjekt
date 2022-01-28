@@ -8,16 +8,26 @@ namespace HotelProjekt.model
 {
     public class HotelSystemElement
     {
+        public bool InRepository 
+        {
+            get; protected set;
+        }
         public bool Empty { get; protected set; }
-        protected Guid id;
+        public Guid Id { get; protected set; }
         public HotelSystemElement() 
         {
-            id = Guid.NewGuid();
+            Id = Guid.NewGuid();
+            InRepository = false;
+        }
+        public void AddToRepository() 
+        {
+            this.InRepository = true;
         }
         public static HotelSystemElement CreateEmpty() 
         {
             HotelSystemElement hotelSystemElement = new HotelSystemElement();
             hotelSystemElement.Empty = true;
+            hotelSystemElement.InRepository = false;
             return hotelSystemElement;
         }
     }
