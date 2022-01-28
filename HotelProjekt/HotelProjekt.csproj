@@ -45,8 +45,11 @@
   <ItemGroup>
     <Compile Include="model\AvailableDiscountCodes.cs" />
     <Compile Include="model\Client.cs" />
+    <Compile Include="model\ClientRepository.cs" />
     <Compile Include="model\HotelSystemElement.cs" />
     <Compile Include="model\HotelSystemElementException.cs" />
+    <Compile Include="model\HotelSystemRepositoryException.cs" />
+    <Compile Include="model\Repository.cs" />
     <Compile Include="model\Reservation.cs" />
     <Compile Include="model\Room.cs" />
     <Compile Include="Program.cs" />

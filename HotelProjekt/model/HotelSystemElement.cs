@@ -23,6 +23,10 @@ namespace HotelProjekt.model
         {
             this.InRepository = true;
         }
+        public void RemoveFromRepository() 
+        {
+            this.InRepository = false;
+        }
         public static HotelSystemElement CreateEmpty() 
         {
             HotelSystemElement hotelSystemElement = new HotelSystemElement();
