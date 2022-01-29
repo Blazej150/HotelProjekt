@@ -46,14 +46,17 @@
     <Compile Include="model\AvailableDiscountCodes.cs" />
     <Compile Include="model\Client.cs" />
     <Compile Include="model\ClientRepository.cs" />
+    <Compile Include="model\HotelSystem.cs" />
     <Compile Include="model\HotelSystemElement.cs" />
     <Compile Include="model\HotelSystemElementException.cs" />
     <Compile Include="model\HotelSystemRepositoryException.cs" />
     <Compile Include="model\Repository.cs" />
     <Compile Include="model\Reservation.cs" />
+    <Compile Include="model\ReservationRepository.cs" />
     <Compile Include="model\Room.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="model\RoomRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
